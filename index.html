@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIMR Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        :root {
+            --primary: #0056b3;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --bg-color: #f0f2f5;
+            --navbar-height: 60px;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #0056b3, #4da6ff);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .login-form {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        .login-form h2 {
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+
+        .login-form img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .login-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #004494;
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            display: none;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: var(--navbar-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .navbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info {
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #e2e6ea;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: var(--navbar-height);
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 90;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 15px 0;
+        }
+
+        .sidebar-menu li {
+            padding: 0 15px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-menu a.active,
+        .sidebar-menu a:hover {
+            background-color: rgba(0, 86, 179, 0.1);
+            color: var(--primary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--navbar-height);
+            padding: 20px;
+        }
+
+        .content-header {
+            margin-bottom: 20px;
+        }
+
+        .content-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .breadcrumb {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        /* Dashboard Overview Cards */
+        .card-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            font-size: 24px;
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 86, 179, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-status {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status-up {
+            color: var(--success);
+        }
+
+        .status-down {
+            color: var(--danger);
+        }
+
+        /* Main Dashboard Sections */
+        .dashboard-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #004494;
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e6ea;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        /* Grid System */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Video Feed */
+        .video-container {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 10px;
+            background-color: black;
+        }
+
+        .camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .camera-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .camera-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Sensor Data Charts */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Robot Control */
+        .control-panel {
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 60px);
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--light);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background-color: #e2e6ea;
+        }
+
+        .control-btn.forward {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .control-btn.left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .control-btn.stop {
+            grid-column: 2;
+            grid-row: 2;
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .control-btn.stop:hover {
+            background-color: #c82333;
+        }
+
+        .control-btn.right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .control-btn.backward {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        .control-status {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Alerts & Notifications */
+        .alert-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .alert-item.critical {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-item.warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-item.info {
+            background-color: rgba(23, 162, 184, 0.1);
+            border-left: 4px solid var(--info);
+        }
+
+        .alert-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .alert-icon.critical {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .alert-icon.warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .alert-icon.info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .alert-content {
+            flex-grow: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .alert-message {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        /* Reports */
+        .report-list {
+            margin-top: 15px;
+        }
+
+        .report-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+        }
+
+        .report-item:hover {
+            background-color: var(--light);
+        }
+
+        .report-icon {
+            margin-right: 15px;
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .report-details {
+            flex-grow: 1;
+        }
+
+        .report-title {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .report-meta {
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--secondary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Icons (using CSS for placeholder icons) */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            position: relative;
+        }
+
+        /* Media Queries */
+        @media (max-width: 1200px) {
+            .card-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .grid-3col {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+
+            .sidebar-menu i {
+                margin-right: 0;
+            }
+
+            .sidebar-menu span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .grid-2col, .grid-3col {
+                grid-template-columns: 1fr;
+            }
+
+            .card-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="login-form">
+            <img src="/api/placeholder/80/80" alt="IIMR Logo">
+            <h2>Industrial Inspection & Maintenance Robot</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter your password">
+            </div>
+            <button class="login-btn" id="loginBtn">Login</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <!-- Navbar -->
+        <div class="navbar">
+            <a href="#" class="navbar-brand">
+                <img src="/api/placeholder/40/40" alt="IIMR Logo">
+                <span>IIMR Dashboard</span>
+            </a>
+            <div class="navbar-right">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <span class="user-name">Admin</span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#dashboard-overview" class="active">
+                        <i>📊</i>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#camera-feed">
+                        <i>📹</i>
+                        <span>Camera Feed</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#sensor-data">
+                        <i>📡</i>
+                        <span>Sensor Data</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#robot-control">
+                        <i>🤖</i>
+                        <span>Robot Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#alerts">
+                        <i>🔔</i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#reports">
+                        <i>📄</i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#settings">
+                        <i>⚙️</i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <!-- Dashboard Overview -->
+            <section id="dashboard-overview" class="dashboard-section">
+                <div class="content-header">
+                    <h2 class="content-title">Dashboard Overview</h2>
+                    <div class="breadcrumb">Home / Dashboard</div>
+                </div>
+
+                <div class="card-row">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🔋</div>
+                            <div class="card-title">Battery Status</div>
+                        </div>
+                        <div class="card-value">85%</div>
+                        <div class="card-status status-down">
+                            <span>↓ 5% since last charge</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🔍</div>
+                            <div class="card-title">Inspections Today</div>
+                        </div>
+                        <div class="card-value">7</div>
+                        <div class="card-status status-up">
+                            <span>↑ 2 more than yesterday</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">⚠️</div>
+                            <div class="card-title">Issues Detected</div>
+                        </div>
+                        <div class="card-value">3</div>
+                        <div class="card-status status-down">
+                            <span>↓ 1 less than usual</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">⏱️</div>
+                            <div class="card-title">Uptime</div>
+                        </div>
+                        <div class="card-value">6h 24m</div>
+                        <div class="card-status">
+                            <span>Since 7:30 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Camera Feed -->
+            <section id="camera-feed" class="dashboard-section">
+                <div class="section-header">
+                    <h3 class="section-title">Camera Feed</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" id="toggleRecordingBtn">Start Recording</button>
+                        <button class="btn btn-secondary" id="takeSnapshotBtn">Take Snapshot</button>
+                    </div>
+                </div>
+
+                <div class="video-container">
+                    <img src="/api/placeholder/800/400" alt="Camera Feed" class="camera-feed">
+                    <div class="video-overlay">
+                        <span>Main Camera • Live</span>
+                        <div class="camera-controls">
+                            <button class="camera-btn" title="Zoom In">+</button>
+                            <button class="camera-btn" title="Zoom Out">-</button>
+                            <button class="camera-btn" title="Toggle Thermal View">🔥</button>
+                            <button class="camera-btn" title="Toggle Night Vision">🌙</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sensor Data -->
+            <section id="sensor-data" class="dashboard-section">
+                <div class="section-header">
+                    <h3 class="section-title">Sensor Data</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" id="refreshDataBtn">Refresh</button>
+                        <button class="btn btn-secondary" id="exportDataBtn">Export</button>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Temperature Readings</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="temperatureChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Humidity Levels</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="humidityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Pressure Readings</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pressureChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Vibration Analysis</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="vibrationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Robot Control -->
+            <section id="robot-control" class="dashboard-section">
+                <div class="section-header">
+                    <h3 class="section-title">Robot Control</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-warning" id="restartRobotBtn">Restart</button>
+                        <button class="btn btn-danger" id="emergencyStopBtn">Emergency Stop</button>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="control-panel">
+                        <h4>Manual Control</h4>
+                        <div class="control-grid">
+                            <button class="control-btn forward">Forward</button>
+                            <button class="control-btn left">Left</button>
+                            <button class="control-btn stop">Stop</button>
+                            <button class="control-btn right">Right</button>
+                            <button class="control-btn backward">Backward</button>
+                        </div>
+                        <div class="control-status">
+                            Status: <span id="robotStatus">Idle</span> | Speed: <span id="robotSpeed">0 m/s</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Automated Tasks</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-primary" id="startInspectionBtn" style="width: 100%; margin-bottom: 10px;">Start Routine Inspection</button>
+                            <button class="btn btn-primary" id="goToLocationBtn" style="width: 100%; margin-bottom: 10px;">Go To Location</button>
+                            <button class="btn btn-primary" id="returnToBaseBtn" style="width: 100%; margin-bottom: 10px;">Return To Base</button>
+                            <button class="btn btn-primary" id="runDiagnosticsBtn" style="width: 100%;">Run Diagnostics</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Alerts -->
+            <section id="alerts" class="dashboard-section">
+                <div class="section-header">
+                    <h3 class="section-title">Alerts & Notifications</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" id="markAllReadBtn">Mark All Read</button>
+                        <button class="btn btn-secondary" id="alertSettingsBtn">Settings</button>
+                    </div>
+                </div>
+
+                <div class="alert-list">
+                    <div class="alert-item critical">
+                        <div class="alert-icon critical">!</div>
+                        <div class="alert-content">
+                            <div class="alert-title">High Temperature Detected</div>
+                            <div class="alert-message">Temperature exceeds threshold of 85°C at Boiler #3</div>
+                            <div class="alert-time">Today, 10:23 AM</div>
+                        </div>
+                    </div>
+
+                    <div class="alert-item warning">
+                        <div class="alert-icon warning">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Unusual Vibration Pattern</div>
+                            <div class="alert-message">Detected in Pump System Area B. Possible loose component.</div>
+                            <div class="alert-time">Today, 9:15 AM</div>
+                        </div>
+                    </div>
+
+                    <div class="alert-item info">
+                        <div class="alert-icon info">i</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Inspection Completed</div>
+                            <div class="alert-message">Routine inspection of Section 4 completed successfully. No issues found.</div>
+                            <div class="alert-time">Today, 8:42 AM</div>
+                        </div>
+                    </div>
+
+                    <div class="alert-item warning">
+                        <div class="alert-icon warning">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Battery Below 30%</div>
+                            <div class="alert-message">Robot battery level is at 28%. Please consider recharging soon.</div>
+                            <div class="alert-time">Yesterday, 5:30 PM</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports -->
+            <section id="reports" class="dashboard-section">
+                <div class="section-header">
+                    <h3 class="section-title">Reports</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" id="generateReportBtn">Generate New Report</button>
+                    </div>
+                </div>
+
+                <div class="report-list">
+                    <div class="report-item">
+                        <div class="report-icon">📄</div>
+                        <div class="report-details">
+                            <div class="report-title">Daily Inspection Summary - March 31, 2025</div>
+                            <div class="report-meta">Generated today at 10:45 AM</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-secondary">View</button>
+                            <button class="btn btn-secondary">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="report-item">
+                        <div class="report-icon">📄</div>
+                        <div class="report-details">
+                            <div class="report-title">Equipment Condition Assessment - March 30, 2025</div>
+                            <div class="report-meta">Generated yesterday at 4:30 PM</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-secondary">View</button>
+                            <button class="btn btn-secondary">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="report-item">
+                        <div class="report-icon">📄</div>
+                        <div class="report-details">
+                            <div class="report-title">Weekly Maintenance Schedule - March 24-30, 2025</div>
+                            <div class="report-meta">Generated on March 24, 2025</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-secondary">View</button>
+                            <button class="btn btn-secondary">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="report-item">
+                        <div class="report-icon">📄</div>
+                        <div class="report-details">
+                            <div class="report-title">Monthly Performance Analysis - March 2025</div>
+                            <div class="report-meta">Generated on March 28, 2025</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-secondary">View</button>
+                            <button class="btn btn-secondary">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="dashboard-section">
+                <div class="section-header">
+                    <h3 class="section-title">Settings</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-success" id="saveSettingsBtn">Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Robot Configuration</div>
+                        </div>
+                        <div style="padding: 15px;">
+                            <div class="form-group">
+                                <label for="robotName">Robot Name</label>
+                                <input type="text" id="robotName" class="form-control" value="IIMR-01">
+                            </div>
+                            <div class="form-group">
+                                <label for="maxSpeed">Maximum Speed (m/s)</label>
+                                <input type="number" id="maxSpeed" class="form-control" value="1.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="inspectionInterval">Default Inspection Interval (hours)</label>
+                                <input type="number" id="inspectionInterval" class="form-control" value="4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Alert Thresholds</div>
+                        </div>
+                        <div style="padding: 15px;">
+                            <div class="form-group">
+                                <label for="tempThreshold">Temperature Threshold (°C)</label>
+                                <input type="number" id="tempThreshold" class="form-control" value="85">
+                            </div>
+                            <div class="form-group">
+                                <label for="humidityThreshold">Humidity Threshold (%)</label>
+                                <input type="number" id="humidityThreshold" class="form-control" value="75">
+                            </div>
+                            <div class="form-group">
+                                <label for="vibrationThreshold">Vibration Threshold (Hz)</label>
+                                <input type="number" id="vibrationThreshold" class="form-control" value="120">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Alert Details</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Detailed information about the alert will be displayed here.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="dismissAlertBtn">Dismiss</button>
+                <button class="btn btn-primary" id="respondAlertBtn">Respond</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const dashboard = document.getElementById('dashboard');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const alertModal = document.getElementById('alertModal');
+        const closeModal = document.getElementById('closeModal');
+        const robotStatus = document.getElementById('robotStatus');
+        const robotSpeed = document.getElementById('robotSpeed');
+
+        // Login functionality
+        loginBtn.addEventListener('click', () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation (in a real app, you'd have proper authentication)
+            if (username && password) {
+                loginPage.style.display = 'none';
+                dashboard.style.display = 'block';
+            }
+        });
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', () => {
+            loginPage.style.display = 'flex';
+            dashboard.style.display = 'none';
+        });
+
+        // Modal functionality
+        document.querySelectorAll('.alert-item').forEach(item => {
+            item.addEventListener('click', () => {
+                alertModal.style.display = 'flex';
+            });
+        });
+
+        closeModal.addEventListener('click', () => {
+            alertModal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === alertModal) {
+                alertModal.style.display = 'none';
+            }
+        });
+
+        // Robot control functionality
+        const controlButtons = document.querySelectorAll('.control-btn');
+        controlButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.textContent;
+                
+                if (action === 'Stop') {
+                    robotStatus.textContent = 'Idle';
+                    robotSpeed.textContent = '0 m/s';
+                } else {
+                    robotStatus.textContent = `Moving ${action}`;
+                    robotSpeed.textContent = '0.8 m/s';
+                }
+            });
+        });
+
+        // Emergency stop button
+        document.getElementById('emergencyStopBtn').addEventListener('click', () => {
+            robotStatus.textContent = 'EMERGENCY STOP';
+            robotSpeed.textContent = '0 m/s';
+            alert('Emergency stop activated. Robot has been halted.');
+        });
+
+        // Chart.js - Temperature Chart
+        const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+        const temperatureChart = new Chart(temperatureCtx, {
+            type: 'line',
+            data: {
+                labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: [65, 68, 70, 72, 75, 78, 76],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: 60,
+                        suggestedMax: 85
+                    }
+                }
+            }
+        });
+
+        // Humidity Chart
+        const humidityCtx = document.getElementById('humidityChart').getContext('2d');
+        const humidityChart = new Chart(humidityCtx, {
+            type: 'line',
+            data: {
+                labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
+                datasets: [{
+                    label: 'Humidity (%)',
+                    data: [45, 47, 50, 49, 52, 55, 54],
+                    borderColor: '#17a2b8',
+                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: 40,
+                        suggestedMax: 60
+                    }
+                }
+            }
+        });
+
+        // Pressure Chart
+        const pressureCtx = document.getElementById('pressureChart').getContext('2d');
+        const pressureChart = new Chart(pressureCtx, {
+            type: 'line',
+            data: {
+                labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
+                datasets: [{
+                    label: 'Pressure (kPa)',
+                    data: [101.3, 101.4, 101.2, 101.1, 101.3, 101.5, 101.4],
+                    borderColor: '#6c757d',
+                    backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: 101,
+                        suggestedMax: 102
+                    }
+                }
+            }
+        });
+
+        // Vibration Chart
+        const vibrationCtx = document.getElementById('vibrationChart').getContext('2d');
+        const vibrationChart = new Chart(vibrationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
+                datasets: [{
+                    label: 'Vibration (Hz)',
+                    data: [45, 52, 48, 75, 60, 58, 65],
+                    backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Smooth scrolling for sidebar links
+        document.querySelectorAll('.sidebar-menu a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update active link
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Button event listeners
+        document.getElementById('toggleRecordingBtn').addEventListener('click', function() {
+            this.textContent = this.textContent === 'Start Recording' ? 'Stop Recording' : 'Start Recording';
+            this.classList.toggle('btn-primary');
+            this.classList.toggle('btn-danger');
+        });
+
+        document.getElementById('takeSnapshotBtn').addEventListener('click', function() {
+            alert('Snapshot taken and saved to gallery.');
+        });
+
+        document.getElementById('refreshDataBtn').addEventListener('click', function() {
+            alert('Sensor data refreshed.');
+        });
+
+        document.getElementById('exportDataBtn').addEventListener('click', function() {
+            alert('Data exported to CSV.');
+        });
+
+        document.getElementById('startInspectionBtn').addEventListener('click', function() {
+            robotStatus.textContent = 'Running inspection';
+            robotSpeed.textContent = '0.5 m/s';
+            alert('Starting routine inspection...');
+        });
+
+        document.getElementById('returnToBaseBtn').addEventListener('click', function() {
+            robotStatus.textContent = 'Returning to base';
+            robotSpeed.textContent = '0.7 m/s';
+            alert('Robot is returning to base station.');
+        });
+
+        document.getElementById('generateReportBtn').addEventListener('click', function() {
+            alert('Generating new report...');
+        });
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+            alert('Settings saved successfully!');
+        });
+    </script>
+</body>
+</html>
